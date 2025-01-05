@@ -67,4 +67,5 @@ jobs:
               with:
                 context: ./docker/iac
                 push: true
-                tags: iac:latest
+                image: iac
+                tags: latest
