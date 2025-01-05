@@ -67,5 +67,4 @@ jobs:
               with:
                 context: ./docker/iac
                 push: true
-                image: iac
-                tags: latest
+                tags: ${{ secrets.DOCKER_USERNAME }}/iac:latest
