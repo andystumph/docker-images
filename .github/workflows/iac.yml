@@ -80,5 +80,5 @@ jobs:
           context: ./docker/iac
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/iac:${{ env.MajorMinorPatch }}"
+            ${{ secrets.DOCKER_USERNAME }}/iac:${{ env.fullSemVer }}
             ${{ secrets.DOCKER_USERNAME }}/iac:latest
