@@ -11,7 +11,7 @@ ARG TERRAFORM_VERSION=1.10.3-1
 ARG POWERSHELL_VERSION=7.4.6-1.deb
 ARG AZ_CLI_VERSION=2.67.0-1~noble
 ARG PACKER_VERSION=1.10.2-1
-ARG ANSIBLE_DEV_TOOLS_VERSION=24.12.0
+ARG ANSIBLE_DEV_TOOLS_VERSION=25.2.1
 
 ARG PIPX_HOME=/opt/pipx
 ARG PIPX_BIN_DIR=/usr/local/bin
@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     pipx \
+    locales \
     git \
     gnupg \
     software-properties-common \
@@ -52,6 +53,10 @@ RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/s
     apt-get update
 
 COPY ./files/Cisco_Umbrella_Root_CA.cer /etc/ssl/certs
+
+## Set up locale
+RUN locale-gen C.UTF-8
+ENV LC_ALL C.UTF-8
 
 ## Install Terraform
 RUN apt-get update && apt-get install -y terraform=${TERRAFORM_VERSION}
