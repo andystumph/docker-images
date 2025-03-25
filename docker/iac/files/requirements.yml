@@ -1,0 +1,15 @@
+---
+collections:
+  - community.general
+  - servicenow.servicenow
+  - community.windows
+  - chocolatey.chocolatey
+  - netscaler.adc
+  - azure.azcollection
+  - purestorage.flasharray
+  - ansible.windows
+  - awx.awx
+  - community.vmware
+  - kubernetes.core
+  - ansible.posix
+  - microsoft.ad

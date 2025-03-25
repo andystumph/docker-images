@@ -13,8 +13,8 @@ ARG AZ_CLI_VERSION=2.67.0-1~noble
 ARG PACKER_VERSION=1.10.2-1
 ARG ANSIBLE_DEV_TOOLS_VERSION=25.2.1
 
-ARG PIPX_HOME=/opt/pipx
-ARG PIPX_BIN_DIR=/usr/local/bin
+ENV PIPX_HOME=/opt/pipx
+ENV PIPX_BIN_DIR=/usr/local/bin
 
 ## Install basic tooling
 RUN apt-get update && apt-get install -y \
@@ -22,10 +22,13 @@ RUN apt-get update && apt-get install -y \
     wget \
     python3 \
     python3-pip \
+    python3-dev \
     pipx \
     locales \
     git \
     gnupg \
+    gcc \
+    build-essential \
     software-properties-common \
     apt-transport-https \
     ca-certificates \
@@ -36,7 +39,9 @@ RUN apt-get update && apt-get install -y \
     vim \
     zsh \
     fonts-powerline \
-    iputils-ping
+    iputils-ping \
+    libkrb5-dev \
+    krb5-user
 
 ## Add Repositories
 # Hashicorp
@@ -53,6 +58,7 @@ RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/s
     apt-get update
 
 COPY ./files/Cisco_Umbrella_Root_CA.cer /etc/ssl/certs
+COPY ./files/requirements.yml .
 
 ## Set up locale
 RUN locale-gen C.UTF-8
@@ -61,21 +67,22 @@ ENV LC_ALL C.UTF-8
 ## Install Terraform
 RUN apt-get update && apt-get install -y terraform=${TERRAFORM_VERSION}
 
-## Install PowerShell & Az Module
-RUN apt-get update && apt-get install -y powershell=${POWERSHELL_VERSION} && \
-pwsh -Command Set-PSRepository -Name PSGallery -InstallationPolicy Trusted && \
-pwsh -Command Install-Module -Name Az -Repository PSGallery -Scope AllUsers -Force
-
 ## Install Packer
 RUN apt-get update && apt-get install -y packer=${PACKER_VERSION}
+
+## Install Ansible
+RUN pipx install --include-deps ansible-dev-tools==${ANSIBLE_DEV_TOOLS_VERSION} && \
+    pipx inject ansible-dev-tools pywinrm[kerberos] && \
+    apt-get install -y python3-pyvmomi && \
+    ansible-galaxy install -r ./requirements.yml
 
 ## Install Azure CLI
 RUN apt-get update && apt-get install -y azure-cli=${AZ_CLI_VERSION}
 
-## Install Ansible
-RUN pipx install --include-deps ansible-dev-tools==${ANSIBLE_DEV_TOOLS_VERSION} && \
-    pipx install --include-deps pywinrm && \
-    apt-get install -y python3-pyvmomi
+## Install PowerShell & Az Module
+RUN apt-get update && apt-get install -y powershell=${POWERSHELL_VERSION} && \
+pwsh -Command Set-PSRepository -Name PSGallery -InstallationPolicy Trusted && \
+pwsh -Command Install-Module -Name Az -Repository PSGallery -Scope AllUsers -Force
 
 ## Clean Up
 RUN apt-get clean autoclean && \
@@ -89,6 +96,9 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME}
 
 USER ${USERNAME}
+
+# Install Ansible collections
+RUN ansible-galaxy collection install -r ./requirements.yml -p /home/${USERNAME}/.ansible/collections/ansible_collections
 
 # Install Oh-my-zsh
 RUN wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | zsh || true
