@@ -4,7 +4,7 @@ ARG IMAGE_VERSION=24.04
 FROM ${IMAGE}:${IMAGE_VERSION}
 
 ARG USERNAME=iac
-ARG USER_UID=1010
+ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 ARG TERRAFORM_VERSION=1.10.3-1
@@ -90,7 +90,8 @@ RUN apt-get clean autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ## Create Non-root User
-RUN groupadd --gid ${USER_GID} ${USERNAME} \
+RUN userdel ubuntu \
+    && groupadd --gid ${USER_GID} ${USERNAME} \
     && useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} \
     && echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME}
