@@ -79,6 +79,9 @@ RUN pipx install --include-deps ansible-dev-tools==${ANSIBLE_DEV_TOOLS_VERSION} 
 ## Install Azure CLI
 RUN apt-get update && apt-get install -y azure-cli=${AZ_CLI_VERSION}
 
+## Install Azure Developer CLI
+RUN curl -fsSL https://aka.ms/install-azd.sh | bash
+
 ## Install PowerShell & Az Module
 RUN apt-get update && apt-get install -y powershell=${POWERSHELL_VERSION} && \
 pwsh -Command Set-PSRepository -Name PSGallery -InstallationPolicy Trusted && \
