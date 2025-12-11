@@ -84,6 +84,8 @@ RUN apt-get update && \
     # Install Ansible
     pipx install --include-deps ansible-dev-tools==${ANSIBLE_DEV_TOOLS_VERSION} && \
     pipx inject ansible-dev-tools pywinrm[kerberos] && \
+    # Install pre-commit
+    pipx install pre-commit && \
     # Remove wget (no longer needed after setup)
     apt-get purge -y --auto-remove wget && \
     # Clean up package caches and temporary files
